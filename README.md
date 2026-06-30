@@ -1,6 +1,6 @@
-# Codex OSS Skills
+# Skills
 
-Personal Codex skills for maintainer-friendly open-source contribution work.
+Personal AI-agent skills I make or find useful.
 
 ## Skills
 
@@ -9,10 +9,10 @@ Personal Codex skills for maintainer-friendly open-source contribution work.
 ## Install
 
 ```bash
-npx skills add Anrahya/codex-oss-skills --skill oss-contribution-workflow -g -y
+npx skills add Anrahya/skills --skill oss-contribution-workflow -g -y
 ```
 
-Restart Codex after installing so the skill is available in new sessions.
+Restart your agent runtime after installing so the skill is available in new sessions.
 
 ## Attribution
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "OSS Contribution Workflow"
-  short_description: "Disciplined Codex workflow for OSS PRs"
+  short_description: "Disciplined workflow for OSS pull requests"
   default_prompt: "Use $oss-contribution-workflow to prepare a small, maintainer-friendly open-source PR."

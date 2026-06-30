@@ -1,6 +1,6 @@
 ---
 name: oss-contribution-workflow
-description: Use when Codex is helping choose, prepare, implement, validate, commit, push, or open a maintainer-friendly open-source contribution or pull request in someone else's repository.
+description: Use when an AI coding agent is helping choose, prepare, implement, validate, commit, push, or open a maintainer-friendly open-source contribution or pull request in someone else's repository.
 ---
 
 # OSS Contribution Workflow
@@ -9,7 +9,7 @@ description: Use when Codex is helping choose, prepare, implement, validate, com
 
 Be a good guest in someone else's project. Optimize for maintainers: small scope, clear evidence, local reproduction, focused tests, respectful templates, and no AI-generated drive-by clutter.
 
-This skill is adapted from GitHub's `awesome-copilot/make-repo-contribution` skill, with Codex-native changes for local verification and stronger issue selection.
+This skill is adapted from GitHub's `awesome-copilot/make-repo-contribution` skill, with agent-native changes for local verification and stronger issue selection.
 
 ## Target Selection
 
@@ -53,7 +53,7 @@ Never include secrets, tokens, private env values, or local-only paths in commit
 2. Prepare the branch.
    - Fork if needed.
    - Never work directly on `main`, `master`, or the upstream default branch.
-   - Use the repo's branch convention if documented; otherwise use `codex/<short-description>`.
+   - Use the repo's branch convention if documented; otherwise use `contrib/<short-description>`.
 
 3. Understand before changing.
    - Read the relevant code path and nearby tests.
