@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anti-Slop Engineering"
+  short_description: "Evidence-driven guardrails for clean changes"
+  default_prompt: "Use $anti-slop-engineering to keep this implementation simple, surgical, and verification-driven."
