@@ -1,0 +1,8 @@
+# Conservative stable rustfmt settings. Preserve an existing repository style.
+# Do not add nightly-only formatting options unless the repository deliberately
+# pins nightly for formatting.
+
+max_width = 100
+newline_style = "Unix"
+use_field_init_shorthand = true
+use_try_shorthand = true

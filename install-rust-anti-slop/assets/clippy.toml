@@ -1,0 +1,37 @@
+# Conservative strict defaults. Merge with existing clippy.toml and adapt to the
+# repository's test policy and MSRV. Do not add project-specific bans without a
+# clear permitted boundary and replacement.
+
+# Production unwrap remains denied by Cargo lint policy. Tests may use expect
+# with a specific fixture/setup invariant, but raw unwrap remains disallowed.
+allow-expect-in-tests = true
+allow-unwrap-in-tests = false
+allow-panic-in-tests = true
+allow-print-in-tests = false
+allow-dbg-in-tests = false
+allow-indexing-slicing-in-tests = false
+
+# Do not let Clippy propose breaking exported APIs merely to satisfy a lint.
+avoid-breaking-exported-api = true
+
+# Keep unsafe proof comments close to the operation.
+accept-comment-above-attributes = true
+accept-comment-above-statement = true
+
+# Keep default wildcard/prelude behavior; the wildcard_imports lint still applies.
+warn-on-all-wildcard-imports = false
+
+# Examples of project-specific bans. Uncomment only when the repository has the
+# stated invariant and an approved exception boundary.
+#
+# disallowed-methods = [
+#   { path = "tokio::sync::mpsc::unbounded_channel", reason = "Runtime queues require explicit bounded backpressure", allow-invalid = true },
+# ]
+#
+# disallowed-types = [
+#   { path = "serde_json::Value", reason = "Untyped JSON is confined to adapter/boundary modules", allow-invalid = true },
+# ]
+#
+# await-holding-invalid-types = [
+#   "project_crate::NonAwaitSafeGuard",
+# ]
