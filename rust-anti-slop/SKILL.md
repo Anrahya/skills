@@ -1,33 +1,47 @@
 ---
-name: install-rust-anti-slop
-description: Install, migrate, and enforce a strict anti-slop quality system in a Rust or Cargo repository. Use when asked to add rigorous Rust linting, Clippy and Cargo policy, unsafe-code controls, dependency checks, CI quality gates, or remove low-evidence agent-generated Rust. Applies to single crates and workspaces and must adapt to the repository's pinned toolchain, MSRV, crate roles, features, targets, async runtime, unsafe requirements, and existing conventions.
-compatibility: Requires filesystem and command-execution access to a local Cargo repository, plus Python 3.11+ for the bundled audit. Optional gates may require rustup, cargo-deny, cargo-nextest, cargo-hack, cargo-llvm-cov, cargo-semver-checks, Miri, cargo-fuzz, or Dylint.
+name: rust-anti-slop
+description: Write, review, debug, refactor, harden, and govern Rust or Cargo repositories with an evidence-driven anti-slop discipline. Use for Rust implementation and review tasks; resolving compiler or Clippy findings; assessing ownership, errors, async lifecycle, unsafe/FFI, dependencies, features, APIs, or tests; or installing and migrating lint, formatting, dependency, and CI policy. Adapt to the pinned toolchain, MSRV, crate roles, features, targets, and existing conventions.
+compatibility: Requires filesystem and command-execution access to a local Rust or Cargo repository. The bundled audit requires Python 3.11+. Optional gates may require rustup, cargo-deny, cargo-nextest, cargo-hack, cargo-llvm-cov, cargo-semver-checks, Miri, cargo-fuzz, or Dylint.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
-# Install Rust anti-slop
+# Rust anti-slop
 
-Install a strict, evidence-driven Rust quality system into the current repository. The objective is not to maximize the number of enabled lints. The objective is to make incorrect, vague, wasteful, difficult-to-review, and unjustified code hard to introduce while avoiding lint-driven rewrites that make the design worse.
+Apply a strict, evidence-driven Rust engineering discipline to owned code, or install that discipline as repository policy when requested. The objective is not to maximize lint counts. The objective is to make incorrect, vague, wasteful, difficult-to-review, and unjustified code hard to introduce while avoiding rewrites that make the design worse.
 
 Treat compiler and lint findings as evidence of a possible defect, not as permission to mechanically mutate code. Preserve behavior, repository conventions, public contracts, unrelated work, and supported targets.
+
+## Choose the workflow
+
+- **Engineering and review:** Use the engineering workflow for implementation, debugging, review, refactoring, hardening, or resolving existing findings. Do not install new repository-wide policy or optional tools unless the task requires it.
+- **Policy installation and migration:** Use the full installation workflow when asked to add, migrate, or enforce lint, formatting, dependency, unsafe-code, or CI policy across a crate or workspace.
 
 ## Non-negotiable operating rules
 
 1. Inspect before editing. Do not infer the workspace layout, toolchain, MSRV, feature model, runtime, or crate boundaries from one file.
 2. Read repository instructions first. `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, task-runner files, and CI are authoritative unless the user explicitly overrides them.
 3. Check `git status` and the relevant diff before touching files. Preserve unrelated work. Never use destructive cleanup commands.
-4. Honor the pinned toolchain and declared `rust-version`. Do not upgrade Rust, editions, dependencies, lockfiles, or CI actions merely to install this policy.
-5. Verify lint names against the repository's active Clippy version. Do not trust remembered lint catalogs.
+4. Honor the pinned toolchain and declared `rust-version`. Do not upgrade Rust, editions, dependencies, lockfiles, or CI actions unless the task requires and justifies it.
+5. Verify lint names against the repository's active Clippy version before changing lint policy. Do not trust remembered lint catalogs.
 6. Do not enable all of `clippy::restriction`, `clippy::nursery`, `clippy::pedantic`, or `clippy::cargo` blindly. Select high-signal lints that fit this repository. Some restriction lints conflict; nursery lints may be incomplete; pedantic lints intentionally produce false positives.
 7. Do not make lint pass by adding clones, allocations, dynamic dispatch, `Arc`, `Mutex`, `Box`, `String`, broad trait objects, broader visibility, lossy casts, `unwrap`, `expect`, panic paths, or dependencies unless the design independently requires them.
 8. Do not suppress a lint globally to silence one local case. Use the narrowest possible `#[expect(..., reason = "...")]` or `#[allow(..., reason = "...")]` only after proving that the code is correct and the lint is unsuitable there.
 9. Do not run `cargo clippy --fix`, `cargo fix`, formatter-wide rewrites, or dependency updates on a dirty repository without reviewing the exact scope first.
 10. Do not edit generated, vendored, copied, binding-generated, migration-generated, or macro-expanded source as though it were owned application code. Fix the generator, exclude the generated path narrowly, or document why it cannot be checked.
-11. A clean lint run is not proof of good architecture. Apply the engineering policy in `references/rust-engineering-policy.md` while resolving findings.
+11. A clean lint run is not proof of good architecture. Apply the engineering policy in `references/rust-engineering-policy.md` to owned code and while resolving findings.
 12. No "temporary" slop. Do not leave unexplained `TODO`, `FIXME`, `todo!`, `unimplemented!`, dead code, commented-out alternatives, ignored errors, debug output, or placeholder abstractions in the completed change.
 
-## Procedure
+## Engineering and review workflow
+
+1. Inspect the task-local code path, repository instructions, relevant manifests, pinned toolchain/MSRV, existing tests, and current diff. Read `references/rust-engineering-policy.md` before making non-trivial design or repair decisions.
+2. Establish the behavioral contract and the relevant ownership, error, lifecycle, concurrency, unsafe, feature, target, and public-API constraints. Distinguish pre-existing failures from task-introduced failures.
+3. Implement or recommend the smallest coherent change that fixes the underlying problem. Preserve types and error evidence; do not launder borrow-checker, lint, or test failures with clones, allocations, panics, broad dynamic types, or suppressions.
+4. Apply specialized guidance only when the risk exists. Read `references/lint-policy.md` when changing lints and `references/specialized-gates.md` when unsafe code, feature matrices, parsers, concurrency, semver, coverage, fuzzing, or cross-target behavior justifies an additional gate.
+5. Run the repository's canonical checks with the intended features and targets. Prefer focused tests first, then the relevant formatter, compiler, Clippy, test, rustdoc, and policy gates in proportion to the change.
+6. Inspect the final diff and apply the acceptance gate below. Report exact commands and results, remaining exceptions, pre-existing failures, and anything not verified.
+
+## Policy installation and migration workflow
 
 ### 1. Inspect the repository and establish the baseline
 
@@ -298,17 +312,22 @@ A change is not complete merely because it compiles. For owned changed code, req
 
 ## Final report
 
-Report clearly:
+Always report clearly:
 
-- repository and toolchain/MSRV inspected,
-- policy profiles selected and why,
+- task scope and repository context inspected,
 - files added or changed,
-- Cargo lint tables and inheritance changes,
-- Clippy/rustfmt/cargo-deny configuration changes,
-- optional tools added and the risk each controls,
 - commands run and exact results,
 - findings fixed versus findings left outstanding,
 - every remaining suppression, exception, generated-code exclusion, or pre-existing failure,
+- anything not verified and the resulting risk.
+
+For policy installation or migration, also report:
+
+- repository and toolchain/MSRV inspected,
+- policy profiles selected and why,
+- Cargo lint tables and inheritance changes,
+- Clippy/rustfmt/cargo-deny configuration changes,
+- optional tools added and the risk each controls,
 - any policy intentionally not enabled because it would create false positives, conflict with the project, or encourage worse code.
 
 Do not claim the repository is clean if any required gate was not run or did not pass.
