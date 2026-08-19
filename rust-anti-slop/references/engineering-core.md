@@ -29,6 +29,32 @@ Do not trade an earlier item for a later one without evidence.
 - Do not create a shared abstraction until there is actual shared behavior and the common contract is stable enough to name.
 - Duplication of two short, evolving call sites can be safer than a premature abstraction. Reassess when the pattern is real.
 
+## Behavioral proof and blast radius
+
+Before editing:
+
+- Derive the contract from the request plus observable current behavior, callers, tests, and documentation. Label facts and inferences.
+- Name the observable outcome, non-goals, and cheapest trustworthy proof.
+- For a bug, reproduce the same symptom through the same surface when safe and practical. If reproduction is blocked, preserve the strongest evidence and state the gap.
+- For a changed type, API, state, protocol, persistence format, feature, or target, search for callers, constructors, trait implementations, serialized or persisted forms, conditional compilation, public consumers, tests, and failure, cancellation, and cleanup paths.
+- Name the load-bearing invariants and what could break.
+
+After editing:
+
+- Exercise the narrowest real surface that proves the outcome and compare it with the baseline.
+- Revisit every affected consumer and load-bearing invariant found before editing.
+- Treat compilation, linting, and self-authored tests as supporting evidence, not substitutes when real behavior can be exercised.
+
+## Verifiable sequencing
+
+For multi-file, multi-crate, migration, or repository-wide work:
+
+- Split the change into the smallest ordered units that each leave the repository coherent.
+- End every unit with the most relevant proof checkpoint. Do not continue on a failed checkpoint; find the cause or revise the plan first.
+- Migrate affected callers and remove the obsolete path in the same verifiable wave.
+- Do not add a temporary shim, alias, dual path, or compatibility layer unless the final external contract requires it.
+- If a unit disproves the design, re-plan instead of accumulating exceptions around it.
+
 ## Testing
 
 Tests should prove behavior and failure modes, not implementation trivia.
@@ -108,4 +134,8 @@ A change is not complete merely because it compiles. For owned changed code, req
 - no tests that depend on sleeps, real wall-clock timing, global state, network flakiness, or unspecified ordering when deterministic seams are practical,
 - no comments that narrate obvious syntax; comments explain invariants, tradeoffs, non-obvious intent, or external constraints,
 - no dead branches, duplicated state, stale caches without invalidation, or impossible-state encodings left representable without reason,
-- no lint or configuration exception lacking a precise reason and narrow scope.
+- no lint or configuration exception lacking a precise reason and narrow scope,
+- the observable outcome is proven through the narrowest real surface available, with any verification gap reported,
+- affected consumers, contracts, and load-bearing invariants have been re-checked,
+- multi-step work did not proceed past a failed proof checkpoint,
+- retryable or replayable external effects have explicit and tested duplicate semantics.

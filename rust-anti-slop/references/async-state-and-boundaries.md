@@ -54,6 +54,18 @@ Represent lifecycle explicitly. Prefer enums with data-bearing states over indep
 - Do not use `Option` to represent every lifecycle stage.
 - Make terminal states and restart behavior explicit.
 
+## Retries, replay, and idempotency
+
+Any externally visible operation that can be retried, replayed, resumed after restart, or repeated after a timeout or ambiguous response must define its duplicate semantics.
+
+- Prefer idempotent convergence: repeating the logical operation reaches the same valid state without duplicating effects.
+- When duplicate effects are unacceptable, use a stable idempotency or deduplication identity scoped to the logical operation, not a single transport attempt.
+- Persist the deduplication record and outcome atomically with the effect when possible. Otherwise define and test reconciliation for every partial state.
+- Make side-effect order, commit points, retryable failures, and ownership of retries explicit. Cancellation or dropping a future does not prove that a remote effect stopped.
+- Test the same request twice, a timeout after the effect but before the response, a crash between steps, and restart or replay where those states are possible.
+- If an operation is intentionally non-idempotent, enforce and document the at-most-once boundary instead of relying on callers to guess.
+- Never claim exactly-once behavior without end-to-end proof across the protocol, storage, recovery, and every retrying participant.
+
 ## Serialization, storage, and protocols
 
 - Define stable wire and storage types separately from evolving domain types when compatibility matters.

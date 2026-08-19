@@ -38,11 +38,14 @@ Templates under `assets/` are reviewed starting points, not universal policy. Th
 
 ## Work
 
-1. Establish the behavioral contract and distinguish pre-existing failures from task-introduced failures.
-2. Select and read the matching references above.
-3. Implement or recommend the smallest change that preserves the applicable ownership, error, lifecycle, concurrency, unsafe, feature, target, and public-API constraints.
-4. Run focused checks first, then the repository's canonical formatter, compiler, Clippy, tests, rustdoc, and policy gates in proportion to the affected features and targets.
-5. Inspect the complete final diff. Apply the acceptance gate in `references/engineering-core.md` to owned changed code.
+1. Derive the behavioral contract from the request and repository evidence. Name the observable outcome, non-goals, and cheapest trustworthy proof before coding; distinguish facts, inferences, and pre-existing failures.
+2. For a bug, reproduce the symptom before editing when safe and practical. If blocked, preserve the strongest existing evidence and report the verification gap rather than inventing a cause.
+3. Select and read the matching references above. Map the blast radius and, for non-trivial multi-step work, define ordered units that each leave the repository coherent and end in a proof checkpoint.
+4. Implement or recommend the smallest change that preserves the applicable ownership, error, lifecycle, concurrency, unsafe, feature, target, and public-API constraints.
+5. Verify each unit before starting the next. If a checkpoint fails, stop and find the cause; do not build on an unverified state or add temporary compatibility code unless the final contract requires it.
+6. Run focused checks first, then the repository's canonical formatter, compiler, Clippy, tests, rustdoc, and policy gates in proportion to the affected features and targets.
+7. Prove the observable outcome through the narrowest real surface available. Compilation, Clippy, and self-authored tests support that proof but do not replace it when real behavior can be exercised.
+8. Inspect the complete final diff, re-check affected consumers and invariants, and apply the acceptance gate in `references/engineering-core.md` to owned changed code.
 
 ## Report
 
