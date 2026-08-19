@@ -5,7 +5,7 @@ Personal AI-agent skills I make or find useful.
 ## Skills
 
 - `anti-slop-engineering`: keep AI-agent implementation work simple, context-aware, product-aware, clean, and verification-driven.
-- `rust-anti-slop`: install, migrate, and enforce a strict, repository-aware Rust quality system without lint-driven rewrites.
+- `rust-anti-slop`: write, review, debug, harden, and govern Rust code without lint-driven or borrow-checker-driven slop.
 - `oss-contribution-workflow`: choose, implement, validate, and publish small open-source PRs without creating maintainer burden.
 
 ## Install
