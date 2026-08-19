@@ -1,0 +1,57 @@
+# Strict starting point for cargo-deny. Prefer running `cargo deny init` with the
+# installed version first, then merge these policy decisions. Review the license
+# allowlist against the project's actual legal/distribution requirements.
+
+[graph]
+all-features = false
+
+[advisories]
+ignore = []
+
+[licenses]
+# This is a common permissive starting set, not legal advice and not a universal
+# policy. Remove or add licenses only after project review.
+allow = [
+  "MIT",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Unicode-3.0",
+  "Zlib",
+  "BSL-1.0",
+  "CC0-1.0",
+]
+confidence-threshold = 0.8
+exceptions = []
+
+[licenses.private]
+# Unpublished workspace crates commonly have no standalone license metadata.
+ignore = true
+registries = []
+
+[bans]
+# Multiple versions are often legitimate. Keep them visible, then resolve or add
+# a reasoned skip only where the graph proves they are unavoidable.
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+allow = []
+allow-workspace = true
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+
+[sources.allow-org]
+github = []
+gitlab = []
+bitbucket = []

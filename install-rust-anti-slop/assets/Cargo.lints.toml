@@ -1,0 +1,109 @@
+# Merge these tables into the root Cargo.toml after verifying every lint against
+# the repository's pinned toolchain with: cargo clippy -- -W help
+#
+# For a virtual or package workspace root, keep [workspace.lints.*]. Every owned
+# member crate must opt in with:
+#
+# [lints]
+# workspace = true
+#
+# For a single-package repository, rename these tables to [lints.rust] and
+# [lints.clippy].
+
+[workspace.lints.rust]
+# Use "forbid" only when no legitimate unsafe exception can ever be required.
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+unreachable_pub = "deny"
+unexpected_cfgs = "deny"
+trivial_casts = "deny"
+trivial_numeric_casts = "deny"
+unused_qualifications = "warn"
+
+[workspace.lints.clippy]
+# Do not enable pedantic, restriction, nursery, or cargo as whole groups.
+all = { level = "deny", priority = -1 }
+
+# Exceptions must explain themselves.
+allow_attributes_without_reason = "deny"
+
+# No hidden panic/placeholder/debug paths in production code.
+dbg_macro = "deny"
+exit = "deny"
+expect_used = "deny"
+panic = "deny"
+print_stderr = "deny"
+print_stdout = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+
+# Do not erase errors or must-use values.
+let_underscore_must_use = "deny"
+map_err_ignore = "deny"
+
+# Keep APIs and imports explicit.
+enum_glob_use = "deny"
+wildcard_imports = "deny"
+
+# Unsafe code must carry a reviewable contract.
+mem_forget = "deny"
+missing_safety_doc = "deny"
+undocumented_unsafe_blocks = "deny"
+
+# High-signal ownership/design checks. Validate on the pinned toolchain before
+# enforcing in a mature codebase.
+clone_on_ref_ptr = "deny"
+fn_params_excessive_bools = "deny"
+needless_collect = "deny"
+rc_mutex = "deny"
+redundant_clone = "deny"
+result_large_err = "deny"
+struct_excessive_bools = "deny"
+unnecessary_box_returns = "deny"
+unnecessary_wraps = "deny"
+
+# Async baseline. Remove or scope when a crate is intentionally single-threaded
+# or non-async.
+async_yields_async = "deny"
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+let_underscore_future = "deny"
+large_futures = "warn"
+
+# Review signals rather than automatic architecture rewrites.
+too_many_arguments = "deny"
+too_many_lines = "warn"
+type_complexity = "warn"
+
+# Cargo/dependency hygiene. Keep duplicate-version policy in cargo-deny/cargo tree.
+negative_feature_names = "deny"
+redundant_feature_names = "deny"
+wildcard_dependencies = "deny"
+
+# Optional profiles: enable only in applicable crates after reviewing migration.
+#
+# Numeric/boundary profile:
+# as_conversions = "deny"
+# cast_possible_truncation = "deny"
+# cast_possible_wrap = "deny"
+# cast_precision_loss = "warn"
+# cast_sign_loss = "deny"
+# checked_conversions = "deny"
+# float_cmp = "deny"
+# indexing_slicing = "deny"
+# string_slice = "deny"
+#
+# Public-library profile:
+# doc_markdown = "deny"
+# missing_errors_doc = "deny"
+# missing_panics_doc = "deny"
+# redundant_pub_crate = "deny"
+#
+# Multi-thread async profile:
+# future_not_send = "warn"
+#
+# Unsafe/FFI review signal; evaluate false positives before denying:
+# multiple_unsafe_ops_per_block = "warn"
