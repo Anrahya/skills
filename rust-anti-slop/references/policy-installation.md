@@ -10,7 +10,7 @@ Run the bundled read-only audit first. It requires Python 3.11 or newer:
 python3 <skill-directory>/scripts/audit_repo.py .
 ```
 
-Treat its output as leads for manual inspection, not semantic proof.
+Treat its output as leads for manual inspection, not semantic proof. It skips nested checkouts such as git worktrees and counts production and test code separately; examples are drawn from production code only.
 
 Then inspect at least:
 

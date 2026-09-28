@@ -2,7 +2,7 @@
 name: rust-anti-slop
 description: Apply evidence-driven Rust engineering discipline while writing, reviewing, debugging, refactoring, hardening, or governing Rust and Cargo repositories. Use for ownership and error design, async lifecycle, unsafe/FFI, APIs, dependencies, features, tests, compiler or Clippy findings, and repository lint or CI policy. Adapt to the repository's toolchain, MSRV, crate roles, targets, features, and conventions.
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Rust anti-slop

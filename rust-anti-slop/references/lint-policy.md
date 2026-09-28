@@ -2,6 +2,8 @@
 
 This reference defines a curated lint strategy. It intentionally avoids "enable everything" configurations that create contradictory guidance, false positives, or code rewritten solely for lint aesthetics.
 
+`../assets/Cargo.lints.toml` is the paste-ready form of this policy: the baseline (§2, §3, and the high-signal part of §4 and §6) is active, and every other profile below is present but commented out. When a profile here changes, change the template in the same edit.
+
 Before adding any lint to `Cargo.toml`, confirm that the repository's active pinned Clippy recognizes it:
 
 ```bash
@@ -123,7 +125,7 @@ Do not "fix" these mechanically:
 - `too_many_arguments` may indicate a missing cohesive parameter object, but do not create a generic `Options` bag full of unrelated fields.
 - `too_many_lines` is a review signal. Do not fragment a coherent algorithm into arbitrary one-use helpers.
 - `large_types_passed_by_value` requires ownership/API analysis; borrowing may make lifetime design worse at some boundaries.
-- `redundant_clone` is historically in the nursery group; enable the individual lint only after validating it on the pinned toolchain.
+- `redundant_clone` is in the nursery group; enable the individual lint only after validating it on the pinned toolchain.
 - `unnecessary_wraps` can conflict with trait/API uniformity. Use a narrow reason if a fallible signature is contractually necessary.
 
 ## 5. Error and control-flow profile
@@ -310,20 +312,7 @@ disallowed-types = [
 
 A global `serde_json::Value` ban is wrong if the crate is itself a JSON adapter. In that case, scope the lint exception to the adapter crate/module and keep domain crates typed.
 
-Potential recurring project-specific policies that may require Dylint rather than Clippy config:
-
-- `anyhow::Result` forbidden outside binary/adapters,
-- ignored `JoinHandle` from `tokio::spawn`,
-- unbounded channels forbidden outside a named compatibility boundary,
-- direct environment/filesystem/network/process access forbidden inside domain crates,
-- wall-clock access forbidden outside a clock adapter,
-- `HashMap<String, serde_json::Value>` forbidden in internal contracts,
-- unsafe blocks permitted only inside a dedicated crate/module,
-- direct database client use forbidden outside repository adapters,
-- `sleep` forbidden in tests,
-- public fields forbidden for invariant-bearing domain types.
-
-Implement a custom lint only after the violation recurs and the rule can be detected with low false-positive risk.
+Recurring project-specific policies that Clippy configuration cannot express may need a Dylint custom lint. Candidate policies and the bar for writing one are listed in `specialized-gates.md` §15. Implement a custom lint only after the violation recurs and the rule can be detected with low false-positive risk.
 
 ## 13. Lints deliberately not blanket-enabled
 

@@ -4,17 +4,7 @@ Add these gates only when they control a real project risk. Every tool adds inst
 
 ## 1. Baseline gate
 
-The baseline for owned Rust code is:
-
-```bash
-cargo fmt --all -- --check
-cargo check --workspace --all-targets --all-features --locked
-cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
-cargo test --workspace --all-targets --all-features --locked
-RUSTDOCFLAGS="-D warnings" cargo doc --workspace --all-features --no-deps --locked
-```
-
-Adapt feature and workspace flags to the repository. Do not use `--all-features` when features are mutually exclusive, target-specific, or intentionally unsupported together.
+The baseline commands (format, check, Clippy, test, rustdoc) and how to adapt their workspace, feature, and lockfile flags are defined once in `policy-installation.md` §8. Every gate below is additive to that baseline.
 
 ## 2. `cargo-deny`: dependency policy
 
