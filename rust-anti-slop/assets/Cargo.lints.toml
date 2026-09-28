@@ -29,6 +29,12 @@ all = { level = "deny", priority = -1 }
 allow_attributes_without_reason = "deny"
 
 # No hidden panic/placeholder/debug paths in production code.
+#
+# Binary crates: `exit`, `print_stdout`, and `print_stderr` will fire in main.rs
+# and CLI output code. A member that sets `[lints] workspace = true` cannot
+# override individual lints, so do not weaken these workspace-wide. Instead put a
+# narrow expectation on the one function that owns process output or exit, e.g.
+#   #[expect(clippy::print_stdout, reason = "CLI result is written to stdout")]
 dbg_macro = "deny"
 exit = "deny"
 expect_used = "deny"
@@ -84,6 +90,24 @@ redundant_feature_names = "deny"
 wildcard_dependencies = "deny"
 
 # Optional profiles: enable only in applicable crates after reviewing migration.
+# Each profile matches a section of references/lint-policy.md.
+#
+# Ownership/allocation profile (lint-policy.md §4):
+# boxed_local = "deny"
+# large_types_passed_by_value = "deny"
+# rc_buffer = "deny"
+# vec_box = "deny"
+#
+# Error/control-flow profile (lint-policy.md §5):
+# fallible_impl_from = "deny"
+# if_then_some_else_none = "deny"
+# manual_assert = "deny"
+# manual_let_else = "warn"
+# match_wild_err_arm = "deny"
+# match_wildcard_for_single_variants = "deny"
+# question_mark = "deny"
+# try_err = "deny"
+# wildcard_enum_match_arm = "deny"
 #
 # Numeric/boundary profile:
 # as_conversions = "deny"
@@ -105,5 +129,7 @@ wildcard_dependencies = "deny"
 # Multi-thread async profile:
 # future_not_send = "warn"
 #
-# Unsafe/FFI review signal; evaluate false positives before denying:
+# Unsafe/FFI profile (lint-policy.md §9):
+# unsafe_derive_deserialize = "deny"
+# Review signal; evaluate false positives before denying:
 # multiple_unsafe_ops_per_block = "warn"

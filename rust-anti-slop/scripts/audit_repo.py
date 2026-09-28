@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -19,6 +20,7 @@ from pathlib import Path
 from typing import Iterable
 
 EXCLUDED_DIRS = {
+    ".claude",
     ".git",
     ".hg",
     ".svn",
@@ -27,6 +29,15 @@ EXCLUDED_DIRS = {
     "target",
     "vendor",
 }
+
+# Path components and file names that conventionally hold test-only code,
+# including `foo_tests/` module directories and `foo_tests.rs` files.
+TEST_DIRS = {"benches", "examples", "fuzz"}
+TEST_NAME_RE = re.compile(r"(?:^|_)tests?$")
+# Heuristic: code after `#[cfg(test)]` or `#[cfg(all(test, ...))]` is treated as
+# test code for the rest of the file, matching the common trailing `mod tests`
+# layout. `cfg(not(test))` does not count.
+CFG_TEST_RE = re.compile(r"#!?\s*\[\s*cfg(?=\s*\()(?![^\]]*\bnot\s*\()[^\]]*[(,]\s*test\s*[,)]")
 
 CONFIG_CANDIDATES = (
     "rust-toolchain.toml",
@@ -101,11 +112,25 @@ def run(command: list[str], cwd: Path, timeout: int = 20) -> tuple[int, str]:
 
 
 def iter_files(root: Path, suffix: str) -> Iterable[Path]:
-    for path in root.rglob(f"*{suffix}"):
-        if any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts):
-            continue
-        if path.is_file():
-            yield path
+    for dirpath, dirnames, filenames in os.walk(root):
+        current = Path(dirpath)
+        # Prune excluded directories and nested checkouts (git worktrees and
+        # submodules carry a `.git` entry) so their copies are not double-counted.
+        dirnames[:] = sorted(
+            name
+            for name in dirnames
+            if name not in EXCLUDED_DIRS and not (current / name / ".git").exists()
+        )
+        for name in sorted(filenames):
+            if name.endswith(suffix):
+                yield current / name
+
+
+def is_test_path(path: Path, root: Path) -> bool:
+    *directories, file_name = path.relative_to(root).parts
+    return any(part in TEST_DIRS or TEST_NAME_RE.search(part) for part in directories) or bool(
+        TEST_NAME_RE.search(file_name.removesuffix(".rs"))
+    )
 
 
 def load_toml(path: Path) -> tuple[dict, str | None]:
@@ -268,8 +293,10 @@ def scan_rust(root: Path, max_examples: int) -> None:
         return
 
     total_lines = 0
+    # Examples are drawn from production code only; test matches are counted.
     matches: dict[str, list[tuple[str, int, str]]] = {signal.name: [] for signal in SIGNALS}
-    counts: dict[str, int] = {signal.name: 0 for signal in SIGNALS}
+    production_counts: dict[str, int] = {signal.name: 0 for signal in SIGNALS}
+    test_counts: dict[str, int] = {signal.name: 0 for signal in SIGNALS}
 
     for path in rust_files:
         try:
@@ -280,12 +307,18 @@ def scan_rust(root: Path, max_examples: int) -> None:
             continue
         lines = text.splitlines()
         total_lines += len(lines)
+        in_test = is_test_path(path, root)
         for line_no, line in enumerate(lines, start=1):
+            if not in_test and CFG_TEST_RE.search(line):
+                in_test = True
             for signal in SIGNALS:
                 occurrences = len(signal.pattern.findall(line))
                 if occurrences == 0:
                     continue
-                counts[signal.name] += occurrences
+                if in_test:
+                    test_counts[signal.name] += occurrences
+                    continue
+                production_counts[signal.name] += occurrences
                 if len(matches[signal.name]) < max_examples:
                     snippet = line.strip()
                     if len(snippet) > 180:
@@ -293,11 +326,16 @@ def scan_rust(root: Path, max_examples: int) -> None:
                     matches[signal.name].append((relative(path, root), line_no, snippet))
 
     print(f"Rust files={len(rust_files)}, lines={total_lines}")
+    print(
+        "Test code = tests/, *_tests/, benches/, examples/, fuzz/, *_test(s).rs files, "
+        "and lines after #[cfg(...test...)] (heuristic)."
+    )
     for signal in SIGNALS:
-        count = counts[signal.name]
-        if count == 0:
+        production = production_counts[signal.name]
+        tests = test_counts[signal.name]
+        if production == 0 and tests == 0:
             continue
-        print(f"\n- {signal.name}: {count}")
+        print(f"\n- {signal.name}: production={production}, test={tests}")
         print(f"  review: {signal.explanation}")
         for path, line_no, snippet in matches[signal.name]:
             print(f"  {path}:{line_no}: {snippet}")
